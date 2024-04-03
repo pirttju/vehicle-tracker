@@ -15,5 +15,11 @@
   "bugs": {
     "url": "https://github.com/pirttju/vehicle-tracker/issues"
   },
-  "homepage": "https://github.com/pirttju/vehicle-tracker"
+  "homepage": "https://github.com/pirttju/vehicle-tracker",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "gtfs-realtime-bindings": "^1.1.1",
+    "mqtt": "^5.5.0",
+    "tile38": "^0.9.4"
+  }
 }
