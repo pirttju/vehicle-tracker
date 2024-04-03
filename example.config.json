@@ -1,0 +1,44 @@
+{
+  "feeds": [
+    {
+      "type": "gtfs-rt",
+      "feedId": "tampere",
+      "feedUrl": "https://data.itsfactory.fi/journeys/api/1/gtfs-rt/vehicle-positions",
+      "frequency": "5",
+      "information": "https://www.nysse.fi/kehittajat.html",
+      "license": "CC BY 4.0",
+      "attribution": "Nysse"
+    },
+    {
+      "type": "gtfs-rt",
+      "feedId": "HSL",
+      "feedUrl": "https://realtime.hsl.fi/realtime/vehicle-positions/v2/hsl",
+      "frequency": "5",
+      "information": "https://www.hsl.fi/en/hsl/open-data",
+      "license": "CC BY 4.0",
+      "attribution": "HSL"
+    },
+    {
+      "type": "gtfs-rt",
+      "feedId": "cz-pid",
+      "feedUrl": "https://api.golemio.cz/v2/vehiclepositions/gtfsrt/vehicle_positions.pb",
+      "frequency": "30",
+      "information": "https://pid.cz/en/opendata/",
+      "license": "CC BY 4.0",
+      "attribution": "PID"
+    },
+    {
+      "type": "gtfs-rt",
+      "feedId": "oulu",
+      "feedUrl": "https://data.waltti.fi/oulu/api/gtfsrealtime/v1.0/feed/vehicleposition",
+      "frequency": "5",
+      "information": "https://opendata.waltti.fi/",
+      "license": "CC BY 4.0",
+      "attribution": "Waltti",
+      "credentials": [
+        "client_ID",
+        "client_secret"
+      ]
+    }
+  ]
+}
