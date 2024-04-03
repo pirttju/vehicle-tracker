@@ -1,0 +1,19 @@
+{
+  "name": "vehicle-tracker",
+  "description": "Vehicle Tracker",
+  "version": "0.1.0",
+  "keywords": [],
+  "author": "Juhani Pirttilahti <juhani@jpl.fi>",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pirttju/vehicle-tracker.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pirttju/vehicle-tracker/issues"
+  },
+  "homepage": "https://github.com/pirttju/vehicle-tracker"
+}
