@@ -28,6 +28,7 @@ const parseGtfsRt = (feedId, buffer, topic = null) => {
 
   for (const entity of message.entity) {
     const data = gtfsRealtime.mapData(entity);
+    data.properties.ve = feedId + ":" + data.properties.ve;
     data.properties.fe = feedId;
 
     // Check that the data isn't stale
