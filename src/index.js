@@ -46,11 +46,13 @@ const parseGtfsRt = (feedId, buffer, topic = null) => {
       continue;
     }
 
+    const props = JSON.stringify(data.properties);
+
     tile38.client.set(
       "vehicles",
       data.properties.ve,
       data.geometry,
-      data.properties,
+      { properties: props },
       { expire: 300 }
     );
   }
