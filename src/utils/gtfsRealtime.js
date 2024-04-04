@@ -40,8 +40,8 @@ exports.decodeGtfsRealtime = (buffer) => {
 // Gets data of interest from the FeedEntity
 exports.mapData = (e) => {
   const geometry = [
-    e.vehicle?.position?.longitude || 0,
     e.vehicle?.position?.latitude || 0,
+    e.vehicle?.position?.longitude || 0,
   ];
 
   const properties = {
