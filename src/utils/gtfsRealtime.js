@@ -75,5 +75,9 @@ exports.mapData = (e) => {
     properties.os = e.vehicle.occupancyStatus;
   }
 
+  if (e.vehicle?.occupancyPercentage) {
+    properties.op = e.vehicle.occupancyPercentage;
+  }
+
   return { geometry, properties };
 };
