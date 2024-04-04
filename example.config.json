@@ -35,10 +35,7 @@
       "information": "https://opendata.waltti.fi/",
       "license": "CC BY 4.0",
       "attribution": "Waltti",
-      "credentials": [
-        "client_ID",
-        "client_secret"
-      ]
+      "token": "some_secret_token"
     }
   ]
 }
