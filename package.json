@@ -20,6 +20,7 @@
     "dotenv": "^16.4.5",
     "gtfs-realtime-bindings": "^1.1.1",
     "mqtt": "^5.5.0",
-    "tile38": "^0.9.4"
+    "tile38": "^0.9.4",
+    "unzipit": "^1.4.3"
   }
 }
