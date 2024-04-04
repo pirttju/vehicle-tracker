@@ -3,6 +3,7 @@
 const gtfsRealtime = require("./utils/gtfsRealtime");
 const HttpPoller = require("./utils/httpPoller");
 const config = require("../config.json");
+const tile38 = require("./db/tile38");
 
 class Pollers {
   constructor() {
@@ -23,27 +24,42 @@ class Pollers {
 let polling = new Pollers();
 
 const parseGtfsRt = (feedId, buffer, topic = null) => {
-  console.log(feedId);
-
   const message = gtfsRealtime.decodeGtfsRealtime(buffer);
 
   for (const entity of message.entity) {
-    console.log(entity.vehicle);
-
     const data = gtfsRealtime.mapData(entity);
+    data.properties.fe = feedId;
 
     // Check that the data isn't stale
     // (i.e. must not be older than 15 min)
     const diff = Date.now() / 1000 - data.properties.ts;
-    if (diff < 900) {
-      console.log(data.geometry);
-      console.log(data.properties);
+    if (diff >= 900) {
+      continue;
     }
+
+    // Check that the data has vehicleId
+    // it is used as the unique identifier in tile38
+    if (
+      typeof data.properties.ve === "string" &&
+      data.properties.ve.length === 0
+    ) {
+      continue;
+    }
+
+    tile38.client.set(
+      "vehicles",
+      data.properties.ve,
+      data.geometry,
+      data.properties,
+      { expire: 300 }
+    );
   }
 };
 
 const main = () => {
+  // Load all configured feeds
   for (const feed of config.feeds) {
+    // GTFS Realtime
     if (feed.type === "gtfs-rt") {
       const options = {
         name: feed.feedId,
