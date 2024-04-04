@@ -36,6 +36,16 @@
       "license": "CC BY 4.0",
       "attribution": "Waltti",
       "token": "some_secret_token"
+    },
+    {
+      "type": "digitraffic",
+      "feedId": "digitraffic",
+      "feedUrl": "mqtt://rata-mqtt.digitraffic.fi:1883",
+      "topics": [
+        "train-locations/#"
+      ],
+      "license": "CC BY 4.0",
+      "attribution": "Digitraffic"
     }
   ]
 }

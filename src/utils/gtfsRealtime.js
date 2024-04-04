@@ -49,28 +49,12 @@ exports.mapData = (e) => {
     be: Math.round(e.vehicle?.position?.bearing),
     sp: Math.round(e.vehicle?.position?.speed),
     ve: e.vehicle?.vehicle?.id,
-    la: e.vehicle?.vehicle?.label,
+    tr: e.vehicle.trip.tripId || null,
+    ro: e.vehicle.trip.routeId || null,
+    st: e.vehicle.trip.startTime || null,
+    sd: e.vehicle.trip.startDate || null,
+    di: e.vehicle.trip.directionId || 0,
   };
-
-  if (e.vehicle?.trip?.tripId) {
-    properties.tr = e.vehicle.trip.tripId;
-  }
-
-  if (e.vehicle?.trip?.routeId) {
-    properties.ro = e.vehicle.trip.routeId;
-  }
-
-  if (e.vehicle?.trip?.startTime) {
-    properties.st = e.vehicle.trip.startTime;
-  }
-
-  if (e.vehicle?.trip?.startDate) {
-    properties.sd = e.vehicle.trip.startDate;
-  }
-
-  if (e.vehicle?.trip?.directionId) {
-    properties.di = e.vehicle.trip.directionId;
-  }
 
   if (e.vehicle?.vehicle?.licensePlate) {
     properties.lp = e.vehicle.vehicle.licensePlate;
