@@ -9,7 +9,7 @@ exports.mapData = (e) => {
 
   const properties = {
     ts: Math.round(ts / 1000),
-    be: 0,
+    be: null,
     sp: Math.round(e.speed),
     ve: `${e.departureDate}/${e.trainNumber}`,
     ro: e.trainNumber,

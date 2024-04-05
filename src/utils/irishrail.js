@@ -24,8 +24,8 @@ exports.mapData = function (text) {
 
     const properties = {
       ts: Math.round(new Date() / 1000),
-      be: 0,
-      sp: 0,
+      be: null,
+      sp: null,
       ve: `${departureDate}/${o.TrainCode}`,
       ro: o.TrainCode,
       sd: departureDate.replaceAll("-", ""),
