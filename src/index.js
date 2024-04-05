@@ -124,9 +124,6 @@ const parseTrafikinfo = (feedId, message) => {
 
   const props = JSON.stringify(data.properties);
 
-  console.log(props);
-  return;
-
   tile38.client.set(
     "vehicles",
     data.properties.ve,
