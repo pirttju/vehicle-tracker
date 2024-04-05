@@ -18,6 +18,7 @@
   "homepage": "https://github.com/pirttju/vehicle-tracker",
   "dependencies": {
     "dotenv": "^16.4.5",
+    "fast-xml-parser": "^4.3.6",
     "gtfs-realtime-bindings": "^1.1.1",
     "mqtt": "^5.5.0",
     "tile38": "^0.9.4",

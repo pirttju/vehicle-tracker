@@ -3,6 +3,7 @@
 const gtfsRealtime = require("./utils/gtfsRealtime");
 const digitraffic = require("./utils/digitraffic");
 const trafik = require("./utils/trafikinfo");
+const irishRail = require("./utils/irishrail");
 const Trafikinfo = require("./clients/trafikinfo");
 const HttpPoller = require("./clients/httpPoller");
 const MqttClient = require("./clients/mqtt");
@@ -133,6 +134,28 @@ const parseTrafikinfo = (feedId, message) => {
   );
 };
 
+// --- Irish Rail ---
+const parseIrishRail = (feedId, message) => {
+  const all = irishRail.mapData(message);
+
+  for (const data of all) {
+    // Set feedId to the feature
+    data.properties.fe = feedId;
+    // Add feedId to the vehicleId
+    data.properties.ve = feedId + ":" + data.properties.ve;
+
+    const props = JSON.stringify(data.properties);
+
+    tile38.client.set(
+      "vehicles",
+      data.properties.ve,
+      data.geometry,
+      { properties: props },
+      { expire: 300 }
+    );
+  }
+};
+
 const main = async () => {
   // Load all configured feeds
   for (const feed of config.feeds) {
@@ -167,6 +190,17 @@ const main = async () => {
       };
       const p = new Trafikinfo(feed.feedUrl, options);
       p.on("data", parseTrafikinfo);
+      p.pollForever();
+    }
+    // --- Irish Rail ---
+    else if (feed.type === "irishrail") {
+      const options = {
+        name: feed.feedId,
+        interval: feed.frequency * 1000,
+        response: "text",
+      };
+      const p = polling.newPoller(feed.feedUrl, options);
+      p.on("data", parseIrishRail);
       p.pollForever();
     }
     // --- Delay ---

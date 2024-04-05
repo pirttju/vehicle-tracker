@@ -8,7 +8,7 @@ exports.mapData = (e) => {
 
   const ts = Date.parse(e.TimeStamp);
 
-  let departureDate = e.Train.OperationalTrainDepartureDate.substring(0, 10);
+  let departureDate = e.Train.OperationalTrainDepartureDate.slice(0, 10);
 
   const properties = {
     ts: Math.round(ts / 1000),
