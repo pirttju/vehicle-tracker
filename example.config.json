@@ -38,6 +38,15 @@
       "token": "some_secret_token"
     },
     {
+      "type": "gtfs-rt",
+      "feedId": "entur",
+      "feedUrl": "https://api.entur.io/realtime/v1/gtfs-rt/vehicle-positions",
+      "frequency": "15",
+      "information": "https://developer.entur.org/",
+      "license": "NLOD",
+      "attribution": "Entur"
+    },
+    {
       "type": "digitraffic",
       "feedId": "digitraffic",
       "feedUrl": "mqtt://rata-mqtt.digitraffic.fi:1883",

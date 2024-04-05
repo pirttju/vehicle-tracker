@@ -2,11 +2,14 @@
 
 const gtfsRealtime = require("./utils/gtfsRealtime");
 const digitraffic = require("./utils/digitraffic");
-const HttpPoller = require("./utils/httpPoller");
-const MqttClient = require("./utils/mqtt");
+const trafik = require("./utils/trafikinfo");
+const Trafikinfo = require("./clients/trafikinfo");
+const HttpPoller = require("./clients/httpPoller");
+const MqttClient = require("./clients/mqtt");
 const config = require("../config.json");
 const tile38 = require("./db/tile38");
 
+// --- Http Clients ---
 class Pollers {
   constructor() {
     this.pollers = [];
@@ -25,6 +28,7 @@ class Pollers {
 
 let polling = new Pollers();
 
+// --- Mqtt Clients ---
 class MqttClients {
   constructor() {
     this.mqttClients = [];
@@ -43,6 +47,7 @@ class MqttClients {
 
 let mqttClients = new MqttClients();
 
+// --- GTFS Realtime ---
 const parseGtfsRt = (feedId, buffer, topic = null) => {
   const message = gtfsRealtime.decodeGtfsRealtime(buffer);
 
@@ -66,14 +71,15 @@ const parseGtfsRt = (feedId, buffer, topic = null) => {
     }
 
     // Manual override to remove trains from HSL feed
-    // because trains are fetched from Digitraffic
-    if (feedId === "HSL" && data.properties.ve.startsWith("3001")) {
+    // because trains are also fetched from Digitraffic
+    if (feedId === "HSL" && data.properties.ro.startsWith("3001")) {
       continue;
     }
 
+    // Set feedId to the feature
+    data.properties.fe = feedId;
     // Add feedId to the vehicleId
     data.properties.ve = feedId + ":" + data.properties.ve;
-    data.properties.fe = feedId;
 
     const props = JSON.stringify(data.properties);
 
@@ -87,8 +93,15 @@ const parseGtfsRt = (feedId, buffer, topic = null) => {
   }
 };
 
+// --- Digitraffic ---
 const parseDigitraffic = (feedId, buffer, topic = null) => {
   const data = digitraffic.mapData(JSON.parse(buffer.toString()));
+
+  // Set feedId to the feature
+  data.properties.fe = feedId;
+  // Add feedId to the vehicleId
+  data.properties.ve = feedId + ":" + data.properties.ve;
+
   const props = JSON.stringify(data.properties);
 
   tile38.client.set(
@@ -100,7 +113,30 @@ const parseDigitraffic = (feedId, buffer, topic = null) => {
   );
 };
 
-const main = () => {
+// --- Trafikinfo ---
+const parseTrafikinfo = (feedId, message) => {
+  const data = trafik.mapData(message);
+
+  // Set feedId to the feature
+  data.properties.fe = feedId;
+  // Add feedId to the vehicleId
+  data.properties.ve = feedId + ":" + data.properties.ve;
+
+  const props = JSON.stringify(data.properties);
+
+  console.log(props);
+  return;
+
+  tile38.client.set(
+    "vehicles",
+    data.properties.ve,
+    data.geometry,
+    { properties: props },
+    { expire: 300 }
+  );
+};
+
+const main = async () => {
   // Load all configured feeds
   for (const feed of config.feeds) {
     // --- GTFS Realtime ---
@@ -125,6 +161,19 @@ const main = () => {
       m.on("data", parseDigitraffic);
       m.connectToBroker();
     }
+    // --- Trafikinfo ---
+    else if (feed.type === "trafikinfo") {
+      const options = {
+        name: feed.feedId,
+        interval: feed.frequency * 1000,
+        token: feed.token,
+      };
+      const p = new Trafikinfo(feed.feedUrl, options);
+      p.on("data", parseTrafikinfo);
+      p.pollForever();
+    }
+    // --- Delay ---
+    await new Promise((r) => setTimeout(r, 500));
   }
 };
 

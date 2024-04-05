@@ -49,11 +49,11 @@ exports.mapData = (e) => {
     be: Math.round(e.vehicle?.position?.bearing),
     sp: Math.round(e.vehicle?.position?.speed),
     ve: e.vehicle?.vehicle?.id,
-    tr: e.vehicle.trip.tripId || null,
-    ro: e.vehicle.trip.routeId || null,
-    st: e.vehicle.trip.startTime || null,
-    sd: e.vehicle.trip.startDate || null,
-    di: e.vehicle.trip.directionId || 0,
+    tr: e.vehicle?.trip?.tripId || null,
+    ro: e.vehicle?.trip?.routeId || null,
+    st: e.vehicle?.trip?.startTime || null,
+    sd: e.vehicle?.trip?.startDate || null,
+    di: e.vehicle?.trip?.directionId || 0,
   };
 
   if (e.vehicle?.vehicle?.licensePlate) {
