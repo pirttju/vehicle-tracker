@@ -75,6 +75,8 @@ const parseGtfsRt = (feedId, buffer, topic = null) => {
     // because trains are also fetched from Digitraffic
     if (feedId === "HSL" && data.properties.ro.startsWith("3001")) {
       continue;
+    } else if (feedId === "HSL" && data.properties.ro.startsWith("3002")) {
+      continue;
     }
 
     // Set feedId to the feature
