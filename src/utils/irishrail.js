@@ -29,6 +29,7 @@ exports.mapData = function (text) {
       ve: `${departureDate}/${o.TrainCode}`,
       ro: o.TrainCode,
       sd: departureDate.replaceAll("-", ""),
+      pm: o.PublicMessage,
     };
 
     all.push({ geometry, properties });
