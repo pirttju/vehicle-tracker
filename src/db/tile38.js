@@ -1,4 +1,5 @@
 "use strict";
+
 require("dotenv").config();
 const Tile38 = require("tile38");
 

@@ -48,11 +48,11 @@ exports.mapData = (e) => {
     ts: e.vehicle?.timestamp.toNumber(),
     be: Math.round(e.vehicle?.position?.bearing),
     sp: Math.round(e.vehicle?.position?.speed),
-    ve: e.vehicle?.vehicle?.id,
-    tr: e.vehicle?.trip?.tripId || null,
-    ro: e.vehicle?.trip?.routeId || null,
-    st: e.vehicle?.trip?.startTime || null,
-    sd: e.vehicle?.trip?.startDate || null,
+    ve: String(e.vehicle?.vehicle?.id),
+    tr: String(e.vehicle?.trip?.tripId) || null,
+    ro: String(e.vehicle?.trip?.routeId) || null,
+    st: String(e.vehicle?.trip?.startTime) || null,
+    sd: String(e.vehicle?.trip?.startDate) || null,
     di: e.vehicle?.trip?.directionId || 0,
   };
 

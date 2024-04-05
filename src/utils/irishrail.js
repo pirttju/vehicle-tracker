@@ -26,9 +26,9 @@ exports.mapData = function (text) {
       ts: Math.round(new Date() / 1000),
       be: null,
       sp: null,
-      ve: `${departureDate}/${o.TrainCode}`,
-      ro: o.TrainCode,
-      sd: departureDate.replaceAll("-", ""),
+      ve: `${o.TrainCode}-${departureDate}`,
+      ro: String(o.TrainCode),
+      sd: String(departureDate.replaceAll("-", "")),
       pm: o.PublicMessage,
     };
 

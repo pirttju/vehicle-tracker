@@ -14,9 +14,9 @@ exports.mapData = (e) => {
     ts: Math.round(ts / 1000),
     be: Math.round(e.Bearing),
     sp: Math.round(e.Speed),
-    ve: `${departureDate}/${e.Train.AdvertisedTrainNumber}`,
-    ro: e.Train.AdvertisedTrainNumber,
-    sd: departureDate.replaceAll("-", ""),
+    ve: `${e.Train.AdvertisedTrainNumber}-${departureDate}`,
+    ro: String(e.Train.AdvertisedTrainNumber),
+    sd: String(departureDate.replaceAll("-", "")),
   };
 
   return { geometry, properties };
