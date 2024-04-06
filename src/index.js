@@ -79,6 +79,17 @@ const parseGtfsRt = (feedId, buffer, topic = null) => {
       continue;
     }
 
+    // Manual override to remove trains from Digitransit feed
+    // because same as above
+    if (feedId === "digitransit") {
+      const t = topic.split("/");
+      if (t[3] === "digitraffic") {
+        continue;
+      } else if (t[6] === "RAIL") {
+        continue;
+      }
+    }
+
     // Set feedId to the feature
     data.properties.fe = feedId;
     // Add feedId to the vehicleId
@@ -172,6 +183,16 @@ const main = async () => {
       const p = polling.newPoller(feed.feedUrl, options);
       p.on("data", parseGtfsRt);
       p.pollForever();
+    }
+    // --- Digitransit ---
+    else if (feed.type === "digitransit") {
+      const options = {
+        name: feed.feedId,
+        topics: feed.topics,
+      };
+      const m = mqttClients.newClient(feed.feedUrl, options);
+      m.on("data", parseGtfsRt);
+      m.connectToBroker();
     }
     // --- Digitraffic ---
     else if (feed.type === "digitraffic") {
