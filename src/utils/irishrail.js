@@ -30,6 +30,7 @@ exports.mapData = function (text) {
       ro: String(o.TrainCode),
       sd: String(departureDate.replaceAll("-", "")),
       pm: o.PublicMessage,
+      rt: 2,
     };
 
     all.push({ geometry, properties });

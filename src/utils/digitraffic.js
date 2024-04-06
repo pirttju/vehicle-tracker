@@ -14,6 +14,7 @@ exports.mapData = (e) => {
     ve: `${e.trainNumber}-${e.departureDate}`,
     ro: String(e.trainNumber),
     sd: String(e.departureDate.replaceAll("-", "")),
+    rt: 2,
   };
 
   return { geometry, properties };
