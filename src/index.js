@@ -79,10 +79,12 @@ const parseGtfsRt = (feedId, buffer, topic = null) => {
       continue;
     }
 
-    // Manual override to remove trains from Digitransit feed
-    // because same as above
     if (feedId === "digitransit") {
+      // for Digitransit use feedId from the topic
       const t = topic.split("/");
+      feedId = t[3];
+
+      // Manual override to remove trains from Digitransit feed
       if (t[3] === "digitraffic") {
         continue;
       } else if (t[6] === "RAIL") {

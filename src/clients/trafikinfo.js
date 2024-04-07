@@ -59,8 +59,8 @@ class Trafikinfo extends EventEmitter {
       ) {
         for (const tp of data.RESPONSE.RESULT[0].TrainPosition) {
           // grab ModifiedTime
-          if (tp.ModifiedTime > this.lastModifiedTime) {
-            this.lastModifiedTime = tp.ModifiedTime;
+          if (tp.ModifiedTime > this.lastModified) {
+            this.lastModified = tp.ModifiedTime;
           }
           this.emit("data", this.name, tp);
         }
