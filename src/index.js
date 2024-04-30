@@ -2,6 +2,7 @@
 
 const gtfsRealtime = require("./utils/gtfsRealtime");
 const digitraffic = require("./utils/digitraffic");
+const nsApi = require("./utils/nsApi");
 const trafik = require("./utils/trafikinfo");
 const irishRail = require("./utils/irishrail");
 const Trafikinfo = require("./clients/trafikinfo");
@@ -129,6 +130,29 @@ const parseDigitraffic = (feedId, buffer, topic = null) => {
   );
 };
 
+// --- NS API ---
+const parseNSApi = (feedId, message) => {
+  if (message.payload && message.payload.treinen) {
+    for (const trein of message.payload.treinen) {
+      const data = nsApi.mapData(trein);
+      // Set feedId to the feature
+      data.properties.fe = feedId;
+      // Add feedId to the vehicleId
+      data.properties.ve = feedId + ":" + data.properties.ve;
+
+      const props = JSON.stringify(data.properties);
+
+      tile38.client.set(
+        "vehicles",
+        data.properties.ve,
+        data.geometry,
+        { properties: props },
+        { expire: 300 }
+      );
+    }
+  }
+};
+
 // --- Trafikinfo ---
 const parseTrafikinfo = (feedId, message) => {
   const data = trafik.mapData(message);
@@ -195,6 +219,18 @@ const main = async () => {
       const m = mqttClients.newClient(feed.feedUrl, options);
       m.on("data", parseGtfsRt);
       m.connectToBroker();
+    }
+    // --- NS API ---
+    else if (feed.type === "nsapi") {
+      const options = {
+        name: feed.feedId,
+        interval: feed.frequency * 1000,
+        response: "json",
+        nskey: feed.nskey,
+      };
+      const p = polling.newPoller(feed.feedUrl, options);
+      p.on("data", parseNSApi);
+      p.pollForever();
     }
     // --- Digitraffic ---
     else if (feed.type === "digitraffic") {

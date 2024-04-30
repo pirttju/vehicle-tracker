@@ -22,6 +22,13 @@ class HttpPoller extends EventEmitter {
         Authorization: `Basic ${options.token}`,
       };
     }
+
+    if (options.nskey !== undefined) {
+      this.headers = {
+        "Cache-Control": "no-cache",
+        "Ocp-Apim-Subscription-Key": options.nskey,
+      };
+    }
   }
 
   async request() {
