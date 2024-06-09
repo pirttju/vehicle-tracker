@@ -159,7 +159,6 @@ const parseDigitraffic = (feedId, buffer, topic = null) => {
   // Try to get previous record
   const prev = pointCache.get(data.properties.ve);
   if (prev == undefined) {
-    console.log(data.properties.ve, "not found");
     data.properties.be = 0;
   } else {
     const point1 = [prev.geometry[1], prev.geometry[0]];
@@ -169,12 +168,6 @@ const parseDigitraffic = (feedId, buffer, topic = null) => {
       be += 360;
     }
     data.properties.be = Math.round(be);
-    console.log(data.properties.ve, "ok");
-    console.log("old");
-    console.log(point1);
-    console.log("new");
-    console.log(point2);
-    console.log("be", data.properties.be);
   }
 
   // Cache point
