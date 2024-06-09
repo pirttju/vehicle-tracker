@@ -1,5 +1,5 @@
 "use strict";
-
+const NodeCache = require("node-cache");
 const gtfsRealtime = require("./utils/gtfsRealtime");
 const digitraffic = require("./utils/digitraffic");
 const nsApi = require("./utils/nsApi");
@@ -10,6 +10,36 @@ const HttpPoller = require("./clients/httpPoller");
 const MqttClient = require("./clients/mqtt");
 const config = require("../config.json");
 const tile38 = require("./db/tile38");
+
+// Cache points
+const pointCache = new NodeCache({
+  stdTTL: 600,
+  deleteOnExpire: true,
+});
+
+// Bearing calculation
+function bearing(point1, point2) {
+  var lon1 = toRad(point1[0]);
+  var lon2 = toRad(point2[0]);
+  var lat1 = toRad(point1[1]);
+  var lat2 = toRad(point2[1]);
+  var a = Math.sin(lon2 - lon1) * Math.cos(lat2);
+  var b =
+    Math.cos(lat1) * Math.sin(lat2) -
+    Math.sin(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1);
+
+  var bearing = toDeg(Math.atan2(a, b));
+
+  return bearing;
+}
+
+function toRad(degree) {
+  return (degree * Math.PI) / 180;
+}
+
+function toDeg(radian) {
+  return (radian * 180) / Math.PI;
+}
 
 // --- Http Clients ---
 class Pollers {
@@ -93,6 +123,12 @@ const parseGtfsRt = (feedId, buffer, topic = null) => {
       }
     }
 
+    // Dirty workaround for Tampere routeIds
+    if (feedId === "tampere") {
+      const ve = data.properties.ve.split("_");
+      data.properties.ro = data.properties.ro.replace(ve[0], "");
+    }
+
     // Set feedId to the feature
     data.properties.fe = feedId;
     // Add feedId to the vehicleId
@@ -119,6 +155,32 @@ const parseDigitraffic = (feedId, buffer, topic = null) => {
   // Add feedId to the vehicleId
   data.properties.ve = feedId + ":" + data.properties.ve;
 
+  // Calculate bearing for records without bearing information
+  // Try to get previous record
+  const prev = pointCache.get(data.properties.ve);
+  if (prev == undefined) {
+    console.log(data.properties.ve, "not found");
+    data.properties.be = 0;
+  } else {
+    const point1 = [prev.geometry[1], prev.geometry[0]];
+    const point2 = [data.geometry[1], data.geometry[0]];
+    let be = bearing(point1, point2);
+    if (be < 0) {
+      be += 360;
+    }
+    data.properties.be = Math.round(be);
+    console.log(data.properties.ve, "ok");
+    console.log("old");
+    console.log(point1);
+    console.log("new");
+    console.log(point2);
+    console.log("be", data.properties.be);
+  }
+
+  // Cache point
+  pointCache.set(data.properties.ve, { geometry: data.geometry });
+
+  // Properties to JSON
   const props = JSON.stringify(data.properties);
 
   tile38.client.set(
