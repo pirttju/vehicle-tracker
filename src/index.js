@@ -134,6 +134,26 @@ const parseGtfsRt = (feedId, buffer, topic = null) => {
     // Add feedId to the vehicleId
     data.properties.ve = feedId + ":" + data.properties.ve;
 
+    // Dirty workaround for ENTUR vehicles without bearing
+    if (feedId === "entur") {
+      // Calculate bearing for records without bearing information
+      // Try to get previous record
+      const prev = pointCache.get(data.properties.ve);
+      if (prev == undefined) {
+        data.properties.be = 0;
+      } else {
+        const point1 = [prev.geometry[1], prev.geometry[0]];
+        const point2 = [data.geometry[1], data.geometry[0]];
+        let be = bearing(point1, point2);
+        if (be < 0) {
+          be += 360;
+        }
+        data.properties.be = Math.round(be);
+      }
+      // Cache point
+      pointCache.set(data.properties.ve, { geometry: data.geometry });
+    }
+
     const props = JSON.stringify(data.properties);
 
     tile38.client.set(
