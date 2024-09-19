@@ -17,6 +17,9 @@ const pointCache = new NodeCache({
   deleteOnExpire: true,
 });
 
+const equalsCheck = (a, b) =>
+  a.length === b.length && a.every((v, i) => v === b[i]);
+
 // Bearing calculation
 function bearing(point1, point2) {
   var lon1 = toRad(point1[0]);
@@ -144,11 +147,13 @@ const parseGtfsRt = (feedId, buffer, topic = null) => {
       } else {
         const point1 = [prev.geometry[1], prev.geometry[0]];
         const point2 = [data.geometry[1], data.geometry[0]];
-        let be = bearing(point1, point2);
-        if (be < 0) {
-          be += 360;
+        if (equalsCheck(point1, point2)) {
+          let be = bearing(point1, point2);
+          if (be < 0) {
+            be += 360;
+          }
+          data.properties.be = Math.round(be);
         }
-        data.properties.be = Math.round(be);
       }
       // Cache point
       pointCache.set(data.properties.ve, { geometry: data.geometry });
@@ -183,11 +188,13 @@ const parseDigitraffic = (feedId, buffer, topic = null) => {
   } else {
     const point1 = [prev.geometry[1], prev.geometry[0]];
     const point2 = [data.geometry[1], data.geometry[0]];
-    let be = bearing(point1, point2);
-    if (be < 0) {
-      be += 360;
+    if (equalsCheck(point1, point2)) {
+      let be = bearing(point1, point2);
+      if (be < 0) {
+        be += 360;
+      }
+      data.properties.be = Math.round(be);
     }
-    data.properties.be = Math.round(be);
   }
 
   // Cache point
