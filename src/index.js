@@ -153,10 +153,15 @@ const parseGtfsRt = (feedId, buffer, topic = null) => {
             be += 360;
           }
           data.properties.be = Math.round(be);
+        } else {
+          data.properties.be = prev.bearing;
         }
       }
       // Cache point
-      pointCache.set(data.properties.ve, { geometry: data.geometry });
+      pointCache.set(data.properties.ve, {
+        geometry: data.geometry,
+        bearing: data.properties.be,
+      });
     }
 
     const props = JSON.stringify(data.properties);
