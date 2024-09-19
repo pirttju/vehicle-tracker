@@ -147,7 +147,7 @@ const parseGtfsRt = (feedId, buffer, topic = null) => {
       } else {
         const point1 = [prev.geometry[1], prev.geometry[0]];
         const point2 = [data.geometry[1], data.geometry[0]];
-        if (equalsCheck(point1, point2)) {
+        if (!equalsCheck(point1, point2)) {
           let be = bearing(point1, point2);
           if (be < 0) {
             be += 360;
@@ -188,7 +188,7 @@ const parseDigitraffic = (feedId, buffer, topic = null) => {
   } else {
     const point1 = [prev.geometry[1], prev.geometry[0]];
     const point2 = [data.geometry[1], data.geometry[0]];
-    if (equalsCheck(point1, point2)) {
+    if (!equalsCheck(point1, point2)) {
       let be = bearing(point1, point2);
       if (be < 0) {
         be += 360;
