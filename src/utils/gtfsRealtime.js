@@ -47,7 +47,7 @@ exports.mapData = (e) => {
   const properties = {
     ts: e.vehicle?.timestamp.toNumber(),
     be: Math.round(e.vehicle?.position?.bearing),
-    sp: Math.round(e.vehicle?.position?.speed),
+    sp: Math.round(e.vehicle?.position?.speed * 3.6),
     ve: String(e.vehicle?.vehicle?.id),
     tr: String(e.vehicle?.trip?.tripId) || null,
     ro: String(e.vehicle?.trip?.routeId) || null,
