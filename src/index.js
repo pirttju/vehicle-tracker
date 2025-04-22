@@ -8,8 +8,10 @@ const irishRail = require("./utils/irishrail");
 const Trafikinfo = require("./clients/trafikinfo");
 const HttpPoller = require("./clients/httpPoller");
 const MqttClient = require("./clients/mqtt");
+const entur = require("./utils/entur");
 const config = require("../config.json");
 const tile38 = require("./db/tile38");
+const EnturPoller = require("./clients/enturPoller");
 
 // Cache points
 const pointCache = new NodeCache({
@@ -113,19 +115,6 @@ const parseGtfsRt = (feedId, buffer, topic = null) => {
       continue;
     }
 
-    if (feedId === "digitransit") {
-      // for Digitransit use feedId from the topic
-      const t = topic.split("/");
-      feedId = t[3];
-
-      // Manual override to remove trains from Digitransit feed
-      if (t[3] === "digitraffic") {
-        continue;
-      } else if (t[6] === "RAIL") {
-        continue;
-      }
-    }
-
     // Dirty workaround for Tampere routeIds
     if (feedId === "tampere") {
       const ve = data.properties.ve.split("_");
@@ -136,33 +125,6 @@ const parseGtfsRt = (feedId, buffer, topic = null) => {
     data.properties.fe = feedId;
     // Add feedId to the vehicleId
     data.properties.ve = feedId + ":" + data.properties.ve;
-
-    // Dirty workaround for ENTUR vehicles without bearing
-    if (feedId === "entur") {
-      // Calculate bearing for records without bearing information
-      // Try to get previous record
-      const prev = pointCache.get(data.properties.ve);
-      if (prev == undefined) {
-        data.properties.be = 0;
-      } else {
-        const point1 = [prev.geometry[1], prev.geometry[0]];
-        const point2 = [data.geometry[1], data.geometry[0]];
-        if (!equalsCheck(point1, point2)) {
-          let be = bearing(point1, point2);
-          if (be < 0) {
-            be += 360;
-          }
-          data.properties.be = Math.round(be);
-        } else {
-          data.properties.be = prev.bearing;
-        }
-      }
-      // Cache point
-      pointCache.set(data.properties.ve, {
-        geometry: data.geometry,
-        bearing: data.properties.be,
-      });
-    }
 
     const props = JSON.stringify(data.properties);
 
@@ -204,6 +166,53 @@ const parseDigitraffic = (feedId, buffer, topic = null) => {
 
   // Cache point
   pointCache.set(data.properties.ve, { geometry: data.geometry });
+
+  // Properties to JSON
+  const props = JSON.stringify(data.properties);
+
+  tile38.client.set(
+    "vehicles",
+    data.properties.ve,
+    data.geometry,
+    { properties: props },
+    { expire: 300 }
+  );
+};
+
+// --- Entur Graphql ---
+const parseEntur = (feedId, message) => {
+  const data = entur.mapData(message);
+
+  // Set feedId to the feature
+  data.properties.fe = feedId;
+
+  // Add feedId to the vehicleId
+  data.properties.ve = feedId + ":" + data.properties.ve;
+
+  // Try to get previous record
+  const prev = pointCache.get(data.properties.ve);
+  if (prev == undefined) {
+    data.properties.be = 0;
+  } else {
+    // Calculate bearing manually as it is missing from the data itself
+    const point1 = [prev.geometry[1], prev.geometry[0]];
+    const point2 = [data.geometry[1], data.geometry[0]];
+    if (!equalsCheck(point1, point2)) {
+      let be = bearing(point1, point2);
+      if (be < 0) {
+        be += 360;
+      }
+      data.properties.be = Math.round(be);
+    } else {
+      data.properties.be = prev.bearing;
+    }
+  }
+
+  // Cache point
+  pointCache.set(data.properties.ve, {
+    geometry: data.geometry,
+    bearing: data.properties.be,
+  });
 
   // Properties to JSON
   const props = JSON.stringify(data.properties);
@@ -289,7 +298,7 @@ const main = async () => {
     if (feed.type === "gtfs-rt") {
       const options = {
         name: feed.feedId,
-        interval: feed.frequency * 1000,
+        interval: feed.interval * 1000,
         response: "buffer",
         token: feed.token,
       };
@@ -297,21 +306,22 @@ const main = async () => {
       p.on("data", parseGtfsRt);
       p.pollForever();
     }
-    // --- Digitransit ---
-    else if (feed.type === "digitransit") {
+    // --- Entur Graphql ---
+    else if (feed.type === "entur") {
       const options = {
         name: feed.feedId,
-        topics: feed.topics,
+        interval: feed.interval * 1000,
+        etClientName: feed.etClientName,
       };
-      const m = mqttClients.newClient(feed.feedUrl, options);
-      m.on("data", parseGtfsRt);
-      m.connectToBroker();
+      const p = new EnturPoller(feed.feedUrl, options);
+      p.on("data", parseEntur);
+      p.pollForever();
     }
     // --- NS API ---
     else if (feed.type === "nsapi") {
       const options = {
         name: feed.feedId,
-        interval: feed.frequency * 1000,
+        interval: feed.interval * 1000,
         response: "json",
         nskey: feed.nskey,
       };
@@ -333,7 +343,7 @@ const main = async () => {
     else if (feed.type === "trafikinfo") {
       const options = {
         name: feed.feedId,
-        interval: feed.frequency * 1000,
+        interval: feed.interval * 1000,
         token: feed.token,
       };
       const p = new Trafikinfo(feed.feedUrl, options);
@@ -344,7 +354,7 @@ const main = async () => {
     else if (feed.type === "irishrail") {
       const options = {
         name: feed.feedId,
-        interval: feed.frequency * 1000,
+        interval: feed.interval * 1000,
         response: "text",
       };
       const p = polling.newPoller(feed.feedUrl, options);
