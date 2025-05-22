@@ -13,6 +13,20 @@ const config = require("../config.json");
 const tile38 = require("./db/tile38");
 const EnturPoller = require("./clients/enturPoller");
 
+// HSL Route Short Name
+const hsl_route = require("../data/hsl_routes.json");
+const getHSLShortRouteName = (routeId) => {
+  const res = hsl_route.filter((o) => {
+    return o.route_id == routeId;
+  });
+
+  if (res && res.length > 0) {
+    return res[0].route_short_name;
+  } else {
+    return routeId;
+  }
+};
+
 // Cache points
 const pointCache = new NodeCache({
   stdTTL: 600,
@@ -115,10 +129,15 @@ const parseGtfsRt = (feedId, buffer, topic = null) => {
       continue;
     }
 
+    // Get short route name for HSL routeId
+    if (feedId === "hsl") {
+      data.properties.ro = getHSLShortRouteName(data.properties.ri);
+    }
+
     // Dirty workaround for Tampere routeIds
     if (feedId === "tampere") {
       const ve = data.properties.ve.split("_");
-      data.properties.ro = data.properties.ro.replace(ve[0], "");
+      data.properties.ro = data.properties.ri.replace(ve[0], "");
     }
 
     // Set feedId to the feature
