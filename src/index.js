@@ -109,9 +109,9 @@ const parseGtfsRt = (feedId, buffer, topic = null) => {
 
     // Manual override to remove trains from HSL feed
     // because trains are also fetched from Digitraffic
-    if (feedId === "HSL" && data.properties.ro.startsWith("3001")) {
+    if (feedId === "hsl" && data.properties.ro.startsWith("3001")) {
       continue;
-    } else if (feedId === "HSL" && data.properties.ro.startsWith("3002")) {
+    } else if (feedId === "hsl" && data.properties.ro.startsWith("3002")) {
       continue;
     }
 
