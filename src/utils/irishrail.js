@@ -19,7 +19,7 @@ exports.mapData = function (text) {
   for (const o of e.ArrayOfObjTrainPositions?.objTrainPositions) {
     const geometry = [o.TrainLatitude || 0, o.TrainLongitude || 0];
 
-    const ts = new Date(o.TrainDate);
+    const ts = new Date(`${o.TrainDate} 00:00:00 GMT`);
     const departureDate = ts.toISOString().slice(0, 10);
 
     const properties = {
